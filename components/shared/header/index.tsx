@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { APP_NAME } from '@/lib/constants';
 import Link from 'next/link';
 import Image from 'next/image';
+import ModeToggle from './mode-toggel';
 
 
 
@@ -13,18 +14,19 @@ const Header = () => {
 
                 <div className="flex-start">
                 <Link href="/" className="flex-start">
-                    <Image src="public/vercel.svg" alt={`${APP_NAME} logo`}  width={48} height={48} priority />
+                    <Image src="/logo.svg" alt={`${APP_NAME} logo`}  width={48} height={48} priority />
                     <span className="hidden lg:block font-bold text-2xl ml-3"> {APP_NAME}</span>
                 </Link>
                 </div>
 
-                <div className="space-x-2">
+                <div className="flex-end space-x-2">
+                    <ModeToggle />
                     <Button  variant="ghost">
-                        <Link href="/cart">Cart
+                        <Link href="/cart">
                         <ShoppingCart className="w-5 h-5" />Cart
                         </Link>
                     </Button>
-                    <Button variant="ghost">
+                    <Button >
                         <Link href="/sign-in">
                             <UserIcon className="w-5 h-5" /> Sign In
                         </Link>
