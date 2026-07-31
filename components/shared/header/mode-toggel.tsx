@@ -1,7 +1,7 @@
- 
+
 'use client';
-import { useState, useEffect, useSyncExternalStore } from "react";
-import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuSeparator, DropdownMenuLabel, DropdownMenuGroup } from "@/components/ui/dropdown-menu";
+import { useSyncExternalStore } from "react";
+import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuSeparator, DropdownMenuLabel, DropdownMenuGroup, DropdownMenuCheckboxItem } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
 import { useTheme } from "next-themes";
 import { MoonIcon, SunIcon, SunMoon } from "lucide-react";
@@ -38,13 +38,13 @@ const ModeToggle = () => {
                 </Button>
             }>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-32">
+            <DropdownMenuContent >
                 <DropdownMenuGroup>
-                <DropdownMenuLabel>Appearance</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <Button variant="ghost" onClick={() => setTheme("light")}>Light</Button>
-                <Button variant="ghost" onClick={() => setTheme("dark")}>Dark</Button>
-                <Button variant="ghost" onClick={() => setTheme("system")}>System</Button>
+                    <DropdownMenuLabel>Appearance</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuCheckboxItem checked={theme === "system"} onCheckedChange={() => setTheme("system")}> System </DropdownMenuCheckboxItem>
+                    <DropdownMenuCheckboxItem checked={theme === "dark"} onCheckedChange={() => setTheme("dark")}> Dark </DropdownMenuCheckboxItem>
+                    <DropdownMenuCheckboxItem checked={theme === "light"} onCheckedChange={() => setTheme("light")}> Light </DropdownMenuCheckboxItem>
                 </DropdownMenuGroup>
             </DropdownMenuContent>
         </DropdownMenu>
