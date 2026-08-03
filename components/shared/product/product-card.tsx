@@ -1,6 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { Card, CardHeader, CardContent } from "@/components/ui/card";
+import ProductPrice from "@/components/shared/product/product-price";
 
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -21,7 +22,7 @@ const ProductCard = ({ product }: { product: any }) => {
                     {/* <span className="text-sm font-bold">${product.price}</span> */}
                     <p>{product.rating}Stars</p>
                     {product.stock > 0 ? (
-                        <p className="font-bold">${product.price}</p>
+                        <ProductPrice value={Number(product.price) }  />
                     ) : (
                         <p className="text-red-500 font-bold">Out of Stock</p>
                     )}
