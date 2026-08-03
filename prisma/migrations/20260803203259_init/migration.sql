@@ -1,6 +1,6 @@
 -- CreateTable
 CREATE TABLE "Product" (
-    "id" UUID NOT NULL,
+    "id" UUID NOT NULL DEFAULT gen_random_uuid(),
     "name" TEXT NOT NULL,
     "slug" TEXT NOT NULL,
     "category" TEXT NOT NULL,
@@ -10,7 +10,7 @@ CREATE TABLE "Product" (
     "stock" INTEGER NOT NULL,
     "price" DECIMAL(12,2) NOT NULL DEFAULT 0,
     "rating" DECIMAL(3,2) NOT NULL DEFAULT 0,
-    "numsReviews" INTEGER NOT NULL DEFAULT 0,
+    "numReviews" INTEGER NOT NULL DEFAULT 0,
     "isFeatured" BOOLEAN NOT NULL DEFAULT false,
     "banner" TEXT,
     "createdAt" TIMESTAMP(6) NOT NULL DEFAULT CURRENT_TIMESTAMP,
