@@ -4,7 +4,7 @@ import ProductCard from "./product-card";
 
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const ProductList = ({ data, title , limit=4 }: { data: any; title?: string; limit?: number }) => {
+const ProductList = ({ data, title , limit }: { data: any; title?: string; limit?: number }) => {
 
     const limitedData = limit ? data.slice(0, limit) : data; // Limit to 8 products
     return (
