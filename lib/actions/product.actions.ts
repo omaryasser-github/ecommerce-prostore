@@ -15,5 +15,9 @@ export async function getLatestProducts() {
       createdAt: "desc",
     },
   });
-  return convertToPlainObject(data);
+  return convertToPlainObject(data).map((product) => ({
+    ...product,
+    price: product.price.toString(),
+    rating: product.rating.toString(),
+  }));
 }
