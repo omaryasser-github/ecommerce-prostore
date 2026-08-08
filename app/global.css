@@ -1,8 +1,8 @@
-@import "tailwindcss";
+@import "tailwindcss";   
 
 /* 1. REGISTER THEME TOKENS */
 /* This tells Tailwind to generate utilities like bg-background, text-foreground, etc. */
-@theme {
+@theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
