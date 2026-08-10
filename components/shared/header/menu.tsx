@@ -3,6 +3,7 @@ import ModeToggle from "./mode-toggel";
 import { EllipsisVertical, ShoppingCart, UserIcon } from "lucide-react";
 import Link from "next/link";
 import { Sheet, SheetContent, SheetDescription, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import UserButton from "./user-button";
 
 
 
@@ -14,9 +15,7 @@ const Menu = () => {
                 <Button variant="ghost" render={<Link href="/cart" />} nativeButton={false}>
                     <ShoppingCart />Cart
                 </Button>
-                <Button render={<Link href="/sign-in" />} nativeButton={false} className="bg-black text-white hover:bg-black/90">
-                    <UserIcon /> Sign In
-                </Button>
+                <UserButton />
             </nav>
 
             <nav className=" md:hidden ">
@@ -29,11 +28,12 @@ const Menu = () => {
                         <SheetTitle >Menu</SheetTitle>
                         <ModeToggle />
                         <Button variant="ghost" render={<Link href="/cart" />} nativeButton={false}>
-                            <ShoppingCart /> Cart
+                            <Link href="/cart" className="flex items-center gap-2">
+                                <ShoppingCart />
+                                Cart
+                            </Link>
                         </Button>
-                        <Button render={<Link href="/sign-in" />} nativeButton={false} className="bg-black text-white hover:bg-black/90">
-                            <UserIcon /> Sign In
-                        </Button>
+                        <UserButton />
                         <SheetDescription >
                             {/* Menu options for mobile view. */}
                         </SheetDescription>
