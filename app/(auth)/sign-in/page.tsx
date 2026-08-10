@@ -4,7 +4,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { APP_NAME } from "@/lib/constants";
 import CredentialsSignInForm from "./credentials-signin-form";
-import {auth} from "@/auth";
+import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 
 
@@ -14,10 +14,18 @@ export const metadata: Metadata = {
 };
 
 
-const SignInPage = async () => {
-    const session =  await auth();
+const SignInPage = async (props: {
+    searchParams: Promise<{
+        callbackUrl: string;
+    }>
+}) => {
+     
+    const { callbackUrl } = await props.searchParams;
+
+    const session = await auth();
+
     if (session) {
-       return redirect("/");
+        return redirect( callbackUrl || "/");
     }
 
     return (
@@ -29,7 +37,7 @@ const SignInPage = async () => {
                     </Link>
 
                     <CardTitle className="text-center">
-                        Sign In 
+                        Sign In
                     </CardTitle>
 
                     <CardDescription className="text-center">
@@ -37,8 +45,8 @@ const SignInPage = async () => {
                     </CardDescription>
                 </CardHeader>
 
-                <CardContent className="space-y-4">    
-                  <CredentialsSignInForm />
+                <CardContent className="space-y-4">
+                    <CredentialsSignInForm />
                 </CardContent>
             </Card>
         </div>
