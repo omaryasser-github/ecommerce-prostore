@@ -104,7 +104,7 @@ export async function addToCart(data: CartItem) {
           where: { id: cart.id },
           data: {
             // items: cart.items as Prisma.CartUpdateitemsInput[],
-            items: cart.items ,
+            items: cart.items,
             ...clacPrice(cart.items as CartItem[]),
           },
         });
@@ -152,4 +152,66 @@ export async function getMyCart() {
     totalPrice: cart.totalPrice.toString(),
     taxPrice: cart.taxPrice.toString(),
   });
+}
+
+export async function removeItemFromCart(productId: string) {
+  try {
+    const sessionCartId = (await cookies()).get("sessionCartId")?.value;
+
+    if (!sessionCartId) throw new Error("Session cart id not found");
+
+    // Get the product
+    const product = await prisma.product.findFirst({
+      where: { id: productId },
+    });
+
+    if (!product) throw new Error("Product not found");
+
+    // Get user cart
+    const cart = await getMyCart();
+
+    if (!cart) throw new Error("Cart not found");
+
+    // Check if product exists in cart
+    const existItem = (cart.items as CartItem[]).find(
+      (cartItem) => cartItem.productId === productId,
+    );
+
+    if (!existItem) throw new Error("Item not found in cart");
+
+    // Check if quantity is greater than 1
+    if (existItem.qty === 1) {
+      // Remove item from cart
+      cart.items = (cart.items as CartItem[]).filter(
+        (cartItem) => cartItem.productId !== existItem.productId,
+      );
+    } else {
+      // Decrease quantity
+      (cart.items as CartItem[]).find(
+        (cartItem) => cartItem.productId === productId,
+      )!.qty = existItem.qty - 1;
+    }
+
+    // Update cart to database
+    await prisma.cart.update({
+      where: { id: cart.id },
+      data: {
+        items: cart.items,
+        ...clacPrice(cart.items as CartItem[]),
+      },
+    });
+
+    // Revalidate product page
+    revalidatePath(`/product/${product.slug}`);
+
+    return {
+      success: true,
+      message: `${product.name} removed from cart successfully`,
+    };
+  } catch (error) {
+    return {
+      success: false,
+      message: formatError(error),
+    };
+  }
 }
