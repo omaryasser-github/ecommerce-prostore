@@ -17,14 +17,14 @@ const AddToCart = ({ item }: { item: CartItem }) => {
        const handleAddToCart = async () => {
               const res = await addToCart(item);
 
-              if (!res.success) {
+              if (!res!.success) {
                      toast.error("Item not created", {
                             description: "Your changes have not been saved.",
                      })
               }
 
               toast.success("Item created", {
-                     description: "Your changes have been saved.",
+                     description: res!.message,
                      action: (
                             <ToastAction className='bg-primary text-white hover:bg-gray-800' onClick={() => router.push("/cart")}>
                                    Go View Cart
