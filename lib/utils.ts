@@ -46,9 +46,26 @@ export function formatError(error: any) {
 export function round2(value: number | string) {
   if (typeof value === "number") {
     return Math.round((value + Number.EPSILON) * 100) / 100;
-  }else if (typeof value === "string") {
-     return Math.round((Number(value) + Number.EPSILON) * 100) / 100;
-  }else{
+  } else if (typeof value === "string") {
+    return Math.round((Number(value) + Number.EPSILON) * 100) / 100;
+  } else {
     throw new Error("Invalid value type. Expected number or string.");
   }
+}
+
+const CURRENCY_FORMATTER = new Intl.NumberFormat("en-US", {
+  currency: "USD",
+  style: "currency",
+  minimumFractionDigits: 2,
+});
+
+// Format number as currency
+export function formatCurrency(amount: number | string | null) {
+  if (amount === null || amount === undefined) {
+    // return CURRENCY_FORMATTER.format(0);
+    return "NaN";
+  }
+  return CURRENCY_FORMATTER.format(
+    typeof amount === "string" ? Number(amount) : amount,
+  );
 }
