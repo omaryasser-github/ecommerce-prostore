@@ -74,6 +74,7 @@ export const config = {
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     async jwt({ token, user, trigger, session }: any) {
       if (user) {
+        token.id = user.id;
         token.role = user.role;
 
         // if the user has no name then use the email first part ;
@@ -86,11 +87,53 @@ export const config = {
             data: { name: token.name },
           });
         }
+
+        if (trigger === "signIn" || trigger === "signUp") {
+            const cookiesObj =  await cookies();
+            const sessionCartId = cookiesObj.get("sessionCartId")?.value;
+
+            if(sessionCartId) {
+              const sessionCart = await prisma.cart.findFirst({
+                where: { sessionCartId },
+              });
+
+              if(sessionCart) {
+                // delete current user cart if exists
+                await prisma.cart.deleteMany({
+                  where: { userId: user.id },
+                }) ;
+
+                await prisma.cart.update({
+                  where: { id: sessionCart.id },
+                  data: { userId: user.id },
+                });
+              }
+            }
+        }
       }
       return token;
     },
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     authorized({ req, token }:any) {
+      // Array of regax patterns for the routes that require authentication
+      const protectedPaths =[
+        /\/shipping-address/,
+        /\/payment-method/,
+        /\/place-order/,
+        /\/user\/(.*)/,
+        /\/order\/(.*)/,
+        /\/admin/, 
+      ]
+
+      // Get path name from the request url object
+      const {pathname} = req.nextUrl;
+
+      // Check if the user is not authenticated and trying to access a protected route
+      if(!auth && protectedPaths.some((pattern) => pattern.test(pathname))) {
+        return false;
+      }
+
+
       // check for session cart cookie
       if(!req.cookies.get("sessionCartId")) {
           // Generate a new session cart id and set it in the cookie
