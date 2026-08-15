@@ -53,6 +53,14 @@ The first iteration is complete and functional for core storefront, authenticati
 - Cart price calculation (items, shipping, tax, total)
 - Session cart identifier support for guest/anonymous flow
 
+6. Shipping Address Flow
+
+- Shipping address page and form added
+- Address validation for shipping data
+- Checkout step for collecting shipping information
+
+Note: some known issues related to this flow are tracked in the project issue file and will be fixed in the near future.
+
 ## Architecture Overview
 
 ### Application Structure
