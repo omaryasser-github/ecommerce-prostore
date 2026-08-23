@@ -122,7 +122,7 @@ model Order {
   createdAt       DateTime  @default(now()) @db.Timestamp(6)
 
   user       User?       @relation(fields: [userId], references: [id], onDelete: Cascade)
-  orderItems OrderItem[]
+  orderitems OrderItem[]
 }
 
 model OrderItem {
