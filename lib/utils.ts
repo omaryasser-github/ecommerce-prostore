@@ -1,12 +1,21 @@
+import { Decimal } from "@prisma/client/runtime/library";
 import { clsx, type ClassValue } from "clsx";
 import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
-
+type Plain<T> = T extends Decimal
+  ? string
+  : T extends Date
+  ? Date
+  : T extends Array<infer U>
+  ? Plain<U>[]
+  : T extends object
+  ? { [K in keyof T]: Plain<T[K]> }
+  : T;
 // convert a prisma object to a regular js object
-export function convertToPlainObject<T>(value: T): T {
+export function convertToPlainObject<T>(value: T):Plain<T> {
   return JSON.parse(JSON.stringify(value));
 }
 
