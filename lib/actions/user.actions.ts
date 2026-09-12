@@ -7,7 +7,7 @@ import {
   paymentMethodSchema,
 } from "../validators";
 import { auth, signIn, signOut } from "@/auth";
-import { isRedirectError } from "next/dist/client/components/redirect-error";
+
 import { hashSync } from "bcrypt-ts-edge";
 import { prisma } from "@/db/prisma";
 import { formatError } from "../utils";
@@ -18,19 +18,18 @@ export async function signInWithCredentials(
   prevState: unknown,
   formData: FormData,
 ) {
+  let user: { email: string; password: string } | null = null;
   try {
-    const user = signInFormSchema.parse({
+    user = signInFormSchema.parse({
       email: formData.get("email"),
       password: formData.get("password"),
     });
-    await signIn("credentials", user);
-    return { success: true, message: "Signed in successful" };
   } catch (error) {
-    if (isRedirectError(error)) {
-      throw error;
-    }
     return { success: false, message: "Invalid email or password" };
   }
+
+  await signIn("credentials", user);
+  return { success: true, message: "Signed in successful" };
 }
 
 // sign user out
@@ -41,8 +40,9 @@ export async function signOutUser() {
 
 // sign up user
 export async function signUpUser(prevState: unknown, formData: FormData) {
+  let user: { name: string; email: string; password: string } | null = null;
   try {
-    const user = signUpFormSchema.parse({
+    user = signUpFormSchema.parse({
       name: formData.get("name"),
       email: formData.get("email"),
       password: formData.get("password"),
@@ -57,18 +57,15 @@ export async function signUpUser(prevState: unknown, formData: FormData) {
         password: hashedPassword,
       },
     });
-
-    await signIn("credentials", {
-      email: user.email,
-      password: hashedPassword,
-    });
-    return { success: true, message: "Signed up successful" };
   } catch (error) {
-    if (isRedirectError(error)) {
-      throw error;
-    }
     return { success: false, message: formatError(error) };
   }
+
+  await signIn("credentials", {
+    email: user.email,
+    password: user.password,
+  });
+  return { success: true, message: "Signed up successful" };
 }
 
 // Get user by id
@@ -123,7 +120,7 @@ export async function updateUserPaymentMethod(
 
     await prisma.user.update({
       where: { id: currentUser.id },
-      data: { paymentMethod: paymentMethod.type },
+      data: { paymentMethods: paymentMethod.type },
     });
 
     return {
