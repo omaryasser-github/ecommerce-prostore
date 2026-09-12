@@ -26,28 +26,66 @@ Then run `npx prisma db push`. In `user.actions.ts`, ensure you use `data: { add
 ## 1. Fix the Sign-In / Sign-Up Buttons & Redirects
 
 **The Problem:** 
-The submit buttons appear "broken" because Next.js 15 redirects are being swallowed by an incorrect `catch` block in `lib/actions/user.actions.ts`. Additionally, the sign-up flow hashes the password twice.
+The submit buttons appear "broken" because `redirect()` in Next.js throws internally, and when it's called inside a `try/catch` block, the catch swallows it — preventing the navigation from ever happening. Additionally, the sign-up flow passes the hashed password to `signIn` instead of the plain-text one.
 
 **The Fix:**
-1. **Fix the Redirect Import:**
-   In `lib/actions/user.actions.ts`, change your import from:
+1. **Restructure Server Actions to Avoid Catching Redirects (Next.js 16+ Recommended Approach):**
+   In Next.js 16+, `isRedirectError` is **not a public API**. The recommended pattern is to restructure your server actions so that `redirect()` and `notFound()` are **never called inside a `try/catch` block**. The workflow is:
+   
+   - **Wrap only the fallible async calls** (e.g., database queries, validation) in `try/catch`.
+   - **Do your validation and return-early logic** between the try blocks.
+   - **Call `redirect()` / `notFound()` last**, at the top level of the function — with no `try` above it.
+   
+   **Remove** the `isRedirectError` import entirely:
    ```typescript
+   // ❌ REMOVE this import — it is not a public API in Next.js 16+
    import { isRedirectError } from "next/dist/client/components/redirect-error";
    ```
-   To the correct Next.js 15 import:
+   
+   **Restructure `signInWithCredentials`:** Move the `signIn()` call (which triggers `redirect()`) outside the `try/catch`:
    ```typescript
-   import { isRedirectError } from "next/navigation";
+   export async function signInWithCredentials(prevState: unknown, formData: FormData) {
+     // Step 1: Validate inside try/catch
+     let user;
+     try {
+       user = signInFormSchema.parse({
+         email: formData.get("email"),
+         password: formData.get("password"),
+       });
+     } catch (error) {
+       return { success: false, message: "Invalid email or password" };
+     }
+
+     // Step 2: Call signIn (which triggers redirect) OUTSIDE try/catch
+     await signIn("credentials", user);
+     return { success: true, message: "Signed in successful" };
+   }
    ```
-2. **Fix the Password Hashing Bug:**
-   In `signUpUser`, pass the plain-text password to `signIn`:
+   
+   **Restructure `signUpUser`** the same way — isolate fallible DB work in `try/catch`, then call `signIn()` outside:
    ```typescript
-   const hashedPassword = hashSync(user.password, 10);
-   await prisma.user.create({
-     data: { name: user.name, email: user.email, password: hashedPassword },
-   });
-   // Pass the ORIGINAL plain-text password to NextAuth
-   await signIn("credentials", { email: user.email, password: user.password });
+   export async function signUpUser(prevState: unknown, formData: FormData) {
+     // Step 1: Validate and create user inside try/catch
+     let user;
+     try {
+       user = signUpFormSchema.parse({ ... });
+       const hashedPassword = hashSync(user.password, 10);
+       await prisma.user.create({
+         data: { name: user.name, email: user.email, password: hashedPassword },
+       });
+     } catch (error) {
+       return { success: false, message: formatError(error) };
+     }
+
+     // Step 2: Sign in (triggers redirect) OUTSIDE try/catch
+     // Use the ORIGINAL plain-text password, not the hash!
+     await signIn("credentials", { email: user.email, password: user.password });
+     return { success: true, message: "Signed up successful" };
+   }
    ```
+
+2. **Fix the Password Hashing Bug (included above):**
+   As shown in the `signUpUser` restructure above, always pass `user.password` (the original plain-text password) to `signIn`, **not** `hashedPassword`. The credentials provider will hash it internally to compare against the stored hash.
 
 ---
 
