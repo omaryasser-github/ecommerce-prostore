@@ -8,13 +8,16 @@ const ProductImages = ({ images }: { images: string[] }) => {
 
   return (
     <div className='space-y-4'>
-      <Image
-        src={images[current]}
-        alt='product image'
-        width={1000}
-        height={1000}
-        className='min-h-75 object-cover object-center'
-      />
+      <div className='relative w-full aspect-square'>
+        <Image
+          src={images[current]}
+          alt='product image'
+          fill
+          // width={1000}
+          // height={1000}
+          className=' object-cover object-center'
+        />
+      </div>
       <div className='flex'>
         {images.map((image, index) => (
           <div
